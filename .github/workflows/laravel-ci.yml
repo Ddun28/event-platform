@@ -1,0 +1,69 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: laravel          
+          MYSQL_USER: sail                  
+          MYSQL_PASSWORD: password          
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      meilisearch:
+        image: getmeili/meilisearch:latest
+        ports:
+          - 7700:7700
+        env:
+          MEILI_NO_ANALYTICS: 'false'     
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: mbstring, ctype, xml, dom, fileinfo, pdo_mysql
+          tools: composer
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate Key
+        run: php artisan key:generate
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+
+      - name: Execute Tests
+        run: php artisan test
+
+      - name: Run Scout Tests
+        env:
+          SCOUT_DRIVER: meilisearch
+          MEILISEARCH_HOST: http://localhost:7700
+        run: php artisan test --filter=ScoutTest
