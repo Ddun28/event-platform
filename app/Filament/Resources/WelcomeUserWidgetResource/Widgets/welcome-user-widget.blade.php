@@ -13,16 +13,5 @@
             </div>
         </div>
         
-        <x-filament::dropdown placement="bottom-end">
-            <x-slot name="trigger">
-                <button class="p-2 -m-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    <x-heroicon-o-ellipsis-vertical class="w-6 h-6 text-gray-500 dark:text-zinc-400" /> {{-- Ajustamos el color del icono --}}
-                </button>
-            </x-slot>
-            <x-filament::dropdown.list>
-                {{ $this->getActions()[0] }} 
-            </x-filament::dropdown.list>
-        </x-filament::dropdown>
-        
     </div>
 </x-filament::widget>

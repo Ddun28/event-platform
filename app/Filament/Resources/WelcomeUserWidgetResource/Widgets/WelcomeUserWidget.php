@@ -18,15 +18,5 @@ class WelcomeUserWidget extends Widget
             'user' => Auth::user()
         ];
     }
-
-    public function getActions(): array
-    {
-        return [
-            Action::make('logout')
-                ->label('Cerrar sesión')
-                ->icon('heroicon-o-arrow-left-on-rectangle')
-                ->color('gray')
-                ->action(fn () => auth()->logout())
-        ];
-    }
+    
 }
