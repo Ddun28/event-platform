@@ -17,23 +17,31 @@ class Event extends Model
         'start_date',
         'end_date',
         'location',
-        'user_id'
+        'user_id',
+        'category_id'
     ];
 
-    // Relación con User
-    public function user(): BelongsTo
+    protected static function booted()
     {
-        return $this->belongsTo(User::class);
+        static::creating(function ($event) {
+            $event->user_id = $event->user_id ?? auth()->id();
+        });
     }
 
-    public function category()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Usuario no asignado'
+        ]);
+    }
+
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function tags()
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
     }
-
 }

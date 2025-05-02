@@ -37,9 +37,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                \App\Filament\Resources\WelcomeUserWidgetResource\Widgets\WelcomeUserWidget::class,
+                \App\Filament\Resources\DashboardResource\Widgets\EventsStatsWidget::class,
+                \App\Filament\Widgets\UserCountWidget::class, 
             ])
+            ->profile() 
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

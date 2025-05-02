@@ -33,12 +33,11 @@ class EventResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Información del Evento')
                     ->schema([
-                        Select::make('user_id')
-                            ->label('Organizador')
-                            ->relationship('user', 'name')
+                        // Campo user_id modificado
+                        Forms\Components\Hidden::make('user_id')
                             ->default(Auth::id())
-                            ->disabled()
-                            ->columnSpanFull(),
+                            ->required()
+                            ->disabled(fn (string $operation): bool => $operation === 'edit'),
                         
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -48,7 +47,7 @@ class EventResource extends Resource
                                     ->required()
                                     ->searchable(),
                                 
-                                    BelongsToManyMultiSelect::make('tags')
+                                BelongsToManyMultiSelect::make('tags')
                                     ->relationship('tags', 'name')
                                     ->required()
                                     ->preload(),
@@ -122,27 +121,27 @@ class EventResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
-                ->relationship('category', 'name')
-                ->label('Filtrar por categoría'),
-            
-            Tables\Filters\Filter::make('fechas')
-                ->form([
-                    Forms\Components\DatePicker::make('start_date')
-                        ->label('Desde'),
-                    Forms\Components\DatePicker::make('end_date')
-                        ->label('Hasta'),
-                ])
-                ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
-                    return $query
-                        ->when(
-                            $data['start_date'] ?? null,
-                            fn ($query, $date) => $query->whereDate('start_date', '>=', $date)
-                        )
-                        ->when(
-                            $data['end_date'] ?? null,
-                            fn ($query, $date) => $query->whereDate('end_date', '<=', $date)
-                        );
-                })
+                    ->relationship('category', 'name')
+                    ->label('Filtrar por categoría'),
+                
+                Tables\Filters\Filter::make('fechas')
+                    ->form([
+                        Forms\Components\DatePicker::make('start_date')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('end_date')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'] ?? null,
+                                fn ($query, $date) => $query->whereDate('start_date', '>=', $date)
+                            )
+                            ->when(
+                                $data['end_date'] ?? null,
+                                fn ($query, $date) => $query->whereDate('end_date', '<=', $date)
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
